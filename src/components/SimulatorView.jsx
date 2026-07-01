@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { Package, RotateCcw, Clock, Coins, Trophy, Zap, List } from 'lucide-react';
+import { Package, RotateCcw, Clock, Coins, Trophy, Zap, List, Star } from 'lucide-react';
 import { RARITY_MAP, RARITY_NUM, WEAR_TIERS } from '../constants.js';
 import { weightedPick } from '../utils.js';
 
@@ -15,7 +15,7 @@ const RARITY_LABELS = {
   restricted:  'Restricted',
   classified:  'Classified',
   covert:      'Covert',
-  contraband:  'Exceedingly Rare ★',
+  contraband:  'Exceedingly Rare',
 };
 
 export default function SimulatorView({ activeCase }) {
@@ -209,79 +209,6 @@ export default function SimulatorView({ activeCase }) {
               {Number(activeCase.price).toLocaleString()}
             </span>
           </button>
-
-          <div className="cc-sim-btn-row">
-            <button
-              className="cc-sim-btn-outline"
-              onClick={() => openCase(3)}
-              disabled={spinning || items.length === 0}
-              id="open-case-3-btn"
-            >
-              <span className="cc-sim-multi-label">OPEN ×3</span>
-              <span className="cc-sim-price">
-                <span className="cc-coin" />
-                {(Number(activeCase.price) * 3).toLocaleString()}
-              </span>
-            </button>
-            <button
-              className="cc-sim-btn-outline red"
-              onClick={() => openCase(5)}
-              disabled={spinning || items.length === 0}
-              id="open-case-5-btn"
-            >
-              <span className="cc-sim-multi-label">OPEN ×5</span>
-              <span className="cc-sim-price">
-                <span className="cc-coin" />
-                {(Number(activeCase.price) * 5).toLocaleString()}
-              </span>
-            </button>
-          </div>
-
-          {/* Quick open + contents toggles */}
-          <div className="cc-sim-toggles">
-            <button
-              className={`cc-sim-toggle-btn ${quickOpen ? 'active' : ''}`}
-              onClick={() => setQuickOpen((v) => !v)}
-              id="quick-open-btn"
-            >
-              <Zap size={13} />
-              Quick Open {quickOpen ? 'ON' : 'OFF'}
-            </button>
-            <button
-              className={`cc-sim-toggle-btn ${showDrops ? 'active' : ''}`}
-              onClick={() => setShowDrops((v) => !v)}
-              id="contents-btn"
-            >
-              <List size={13} />
-              Contents
-            </button>
-          </div>
-        </div>
-
-        {/* ─── Stats bar ─── */}
-        <div className="cc-sim-stats">
-          <div className="cc-sim-stat">
-            <Clock size={13} />
-            Opened: <span>{simStats.opened}</span>
-          </div>
-          <div className="cc-sim-stat">
-            <Coins size={13} />
-            Spent: <span style={{ color: '#ff9900' }}>{simStats.spent.toLocaleString()}</span>
-          </div>
-          <div className="cc-sim-stat">
-            <Trophy size={13} />
-            Best:{' '}
-            <span style={{ color: simStats.bestItem?._rarityColor || '#94a3b8' }}>
-              {simStats.bestItem
-                ? splitName(simStats.bestItem._name).skin || simStats.bestItem._name
-                : '–'}
-            </span>
-          </div>
-          {simStats.opened > 0 && (
-            <button className="cc-sim-reset-btn" onClick={resetStats} id="reset-sim-btn" title="Reset stats">
-              <RotateCcw size={12} /> Reset
-            </button>
-          )}
         </div>
       </div>
 
@@ -309,25 +236,30 @@ export default function SimulatorView({ activeCase }) {
                   className="cc-visual-card"
                   style={{ '--rarity-color': item._rarityColor || '#94a3b8' }}
                 >
+                  <div className="cc-visual-chance-badge">{Number(chance.toFixed(4))}%</div>
                   <div className="cc-visual-img-wrap">
                     <img src={item._image} alt={item._name} loading="lazy" />
                   </div>
                   <div className="cc-visual-info">
                     <div className="cc-visual-name" title={item._name}>
-                      {isSpecial && <span className="cc-star">★ </span>}
-                      {weapon && <span className="cc-visual-weapon">{weapon}</span>}
-                      {weapon && ' | '}
-                      <span className="cc-visual-skin">{skin || item._name}</span>
-                    </div>
-                    <div className="cc-visual-rarity" style={{ color: item._rarityColor }}>
-                      {rarityLabel}
-                    </div>
-                    {wear && (
-                      <div className="cc-visual-wear" style={{ color: wear.color }}>
-                        {wear.label}
+                      {weapon && (
+                        <div className="cc-visual-weapon">
+                          {isSpecial && <span className="cc-star" style={{display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle', marginRight: '3px'}}><Star size={10} fill="currentColor" /></span>}
+                          {weapon.replace('★ ', '')}
+                        </div>
+                      )}
+                      <div className="cc-visual-skin" style={{ color: item._rarityColor || '#f1f5f9' }}>
+                        {skin || item._name}
                       </div>
-                    )}
-                    <div className="cc-visual-chance">{chance.toFixed(chance < 0.01 ? 6 : 4)}%</div>
+                    </div>
+                    <div className="cc-visual-meta">
+                      <div className="cc-visual-rarity">{rarityLabel}</div>
+                      {wear && (
+                        <div className="cc-visual-wear" style={{ color: wear.color }}>
+                          {wear.label}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
